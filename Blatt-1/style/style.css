@@ -1,0 +1,27 @@
+.canvas {
+    background-color: gray;
+    height: 500px;
+    width: 500px;
+}
+
+.ulMenu {
+    position: absolute;
+    border-style: ridge;
+    padding: 0;
+    list-style-type: none;
+    background-color: aliceblue;
+}
+
+.ulMenu .menuItem {
+    margin: 5px;
+}
+
+.helperDiv {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 999;
+    height: 100%;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.2);
+}

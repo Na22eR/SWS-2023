@@ -1,0 +1,43 @@
+A 1.1:
+
+Sticky Sessions:
+Eine Sticky Session dient dazu alle Anfragen eines Benutzers an eine Webanwendung an denselben Server weiterzuleiten.
+Würde keine Sticky Session verwendet werden, würde bei jeder Anfrage an den Loadbalancer (vorausgesetzt die Anwendung ist horizontal skaliert)
+neu gelost werden, an welche Instanz die Anfrage weiterzuleiten ist. Hierfür würden die herkömmlichen Verteilungsalgorithmen wie z.B. der
+Round Robin oder die Least Connections infrage kommen. Durch die Sticky Sessions merkt sich der Loadbalancer zu jeder Sitzungs-ID den
+zugehörigen Server. So wird vorher geprüft, ob für den anfragenden User bereits eine Sitzungs-Id festgelegt wurde.
+Ja -> Weiterleitung auf verknüpften Server Nein -> Neue Sitzungs-ID generieren & an User zurücksenden
+
+Skalierungsprobleme:
+Es gibt verschiedene Probleme die mit Sticky Sessions einhergehen können. Darunter eine ungleiche Lastverteilung, eine geringe Ausfallsicherheit
+und vor allem die nicht gewährleistete Skalierung der Anwendung. In meiner Bachelorarbeit habe ich mich bereits mit diesem Thema befasst und einen
+dynamischen Loadbalancer erstellt, um die Verwendung von Sticky Session in einem horizontal skalierten Umfeld einer Webanwendung zu vermeiden. Das
+Problem bei der Skalierung liegt in der Bindung der Sitzung an den Server. Dadurch werden auch alle nachfolgenden Anfragen wie "gewollt" an den
+Server weitergeleitet. Allerdings bedeutet das auch, dass für die nachfolgenden Anfragen nicht die Kapazitäten der anderen replizierten Instanzen
+verwendet werden können. Was wie bereits erwähnt die Skalierung der Anwendung nahezu sinnlos macht, und die Ausfallsicherheit praktisch nicht
+gegeben ist.
+
+Single Page Webanwendungen:
+Eine Single Page Webanwendung fragt bereits zu Beginn den gesamten Anwendungsinhalt an und rendert diesen. So kann der Zustand der Sitzung im
+Browser des Benutzers gespeichert werden, wodurch eine Unabhängigkeit von Sitzungsstand und Serverinstanz erreicht wird. Die Kommunikation
+mit den Backend-Servern kann dadurch weiterhin mithilfe des Load-Balancers auf die verschiedenen Instanzen aufgeteilt werden.
+
+
+
+
+Quellen:
+- Vorwissen durch Bachelorarbeit
+- Recherche zu SPAs:
+https://www.bloomreach.com/en/blog/2018/what-is-a-single-page-application
+
+- Chat GPT Erklärung:
+Dynamically rewriting a single-page web application typically involves manipulating the DOM (Document Object Model) in response to user interactions or changes in application state. Here's a general process of achieving dynamic rewriting:
+    Handle user interactions: Capture user interactions, such as button clicks or form submissions, using event listeners or frameworks' built-in mechanisms.
+    Update application state: Maintain an application state, either through variables or data structures. When a user interaction occurs, update the relevant state variables to reflect the changes.
+    Modify the DOM: Use JavaScript or a framework/library to manipulate the DOM based on the updated application state. This can involve adding, modifying, or removing elements, updating text content, or applying CSS classes dynamically.
+    Render templates or components: If you're using a JavaScript framework or library, you may have templates or components that define the structure and appearance of your application. Update these templates/components based on the application state changes, and re-render them to reflect the updated data.
+    Update URL or use history manipulation: If necessary, update the URL or use history manipulation (e.g., pushState) to reflect the current application state. This allows users to bookmark or share specific application states and enables back/forward navigation.
+By following these steps, you can achieve dynamic rewriting in a single-page web application. However, the exact implementation details may vary depending on the specific framework or library you're using, as they often provide abstractions and tools to facilitate DOM manipulation and state management.
+
+- Visuelle Darstellung Sticky Session:
+https://traefik.io/glossary/what-are-sticky-sessions/

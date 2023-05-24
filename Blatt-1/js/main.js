@@ -1,8 +1,7 @@
 import {MenuApi} from "./menuApi.js";
-import {Menu} from "./menu.js";
 
 
-export function init(){
+function init(){
     addRClickListenerCanvas()
     addMoveListenerCanvas()
     addClickListenerCanvas()
@@ -11,68 +10,62 @@ export function init(){
 
 function setupContextMenu ( menuApi ) {
     const menu = menuApi.createMenu () ;
-    const mItem1 = menuApi.createItem ( "I1", function(m) {
-        console.log("I1"); // Imagine we would do something great here
-        m.hide(); // hide the menu , so m === menu
+    const mItem1 = menuApi.createItem ( "I1", function() {
+        console.log("I1"); //Imagine we would do something great here
+        menu.hide(); //hide the menu
     }) ;
     const mItem2 = menuApi.createItem ( "I2", function() {
-        console.log ("I2"); // Imagine we would do something great here as well
+        console.log ("I2"); //Imagine we would do something great here as well
     }) ;
     const mT1 = menuApi.createSeparator () ;
-    const mItem3 = menuApi.createItem ( "I3" , function(m){
-        m.hide () ; // Here , we just want to hide the menu
+    const mItem3 = menuApi.createItem ( "I3" , function(){
+        menu.hide () ; //Here, we just want to hide the menu
     }) ;
-    menu.addItem(mItem1)
-    //menu.addItems(mItem1, mItem2);
+    let itemArray = [mItem1, mItem2]
+    menu.addItems(itemArray);
     menu.addItem(mT1);
     menu.addItem(mItem3);
     return menu;
 }
 
-
+//Adding Listener for right click events
 function addRClickListenerCanvas(){
 
     document.getElementById("canvas").addEventListener("contextmenu", function(e){
         e.preventDefault();
 
-        /*
-        let menu = MenuApi.createMenu();
-        let item = MenuApi.createItem("Test", function(){console.log("Info: Test clicked"); } )
-
-        menu.addItem(item)
-        menu.show(e.clientX,e.clientY)
-        */
-
         const menu = setupContextMenu(MenuApi);
         menu.show(e.clientX,e.clientY)
 
         console.log("Event: Canvas right clicked");
-
     } );
-
 
 }
 
+//Adding Listener for mouse movements
 function addMoveListenerCanvas(){
 
     document.getElementById("canvas").addEventListener("mousemove", function(e){
-        let x = e.clientX - 8
-        let y = e.clientY - 8
-        document.getElementById("coordinates").textContent = "Coordinates: " + x + ", " + y;
-        console.log("Event: Mouse moved");
-        //console.log("Coordinates: " + x + ", " + y);
         e.preventDefault();
-    } );
 
+        let x = e.clientX - document.getElementById("canvas").offsetLeft
+        let y = e.clientY - document.getElementById("canvas").offsetTop
+
+        document.getElementById("coordinates").textContent = "Coordinates: x:" + x + ", y: " + y;
+
+        console.log("Event: Mouse moved");
+    } );
 
 }
 
-
+//Adding Listener for left click events
 function addClickListenerCanvas(){
 
     document.getElementById("canvas").addEventListener("click", function(e){
-        let x = e.clientX - 8
-        let y = e.clientY - 8
+        e.preventDefault();
+
+        let x = e.clientX - document.getElementById("canvas").offsetLeft
+        let y = e.clientY - document.getElementById("canvas").offsetTop
 
         let list = document.getElementById("CordList");
         let listItem = document.createElement("li");
@@ -80,10 +73,9 @@ function addClickListenerCanvas(){
         list.appendChild(listItem)
 
         console.log("Event: Canvas left clicked");
-        e.preventDefault();
     } );
 
 }
 
-
+//Calling init method to add all listeners
 init()
