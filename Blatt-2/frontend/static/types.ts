@@ -1,6 +1,10 @@
 export interface Shape {
     readonly id: number;
-    draw(ctx: CanvasRenderingContext2D);
+    fillColor: string;
+    draw(ctx: CanvasRenderingContext2D, isSelected: boolean, selectionColor: string);
+
+    isSelected(x: number, y: number): boolean;
+
 }
 
 export interface ShapeManager {

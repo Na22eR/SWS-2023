@@ -6,6 +6,8 @@ class Point2D {
 class AbstractShape {
     private static counter: number = 0;
     readonly id: number;
+    fillColor: string;
+
     constructor() {
         this.id = AbstractShape.counter++;
     }
@@ -52,15 +54,60 @@ abstract class AbstractFactory<T extends Shape> {
 
 }
 export class Line extends AbstractShape implements Shape {
+    // low number = high accuracy => 10 points toleration allowed
+    selectionAccuracy: number = 10;
+
     constructor(readonly from: Point2D, readonly to: Point2D){
         super();
     }
 
-    draw(ctx: CanvasRenderingContext2D) {
+    draw(ctx: CanvasRenderingContext2D, isSelected: boolean, colorForSelection: string,) {
         ctx.beginPath();
         ctx.moveTo(this.from.x, this.from.y);
         ctx.lineTo(this.to.x, this.to.y);
         ctx.stroke();
+
+        if (isSelected) {
+            ctx.fillStyle = colorForSelection;
+            ctx.fillRect(this.from.x - 3, this.from.y - 3, 6, 6);
+            ctx.fillRect(this.to.x - 3, this.to.y - 3, 6, 6)
+        }
+    }
+
+    isSelected(x: number, y: number): boolean {
+        //solution for calculating shortest distance between clicked point and a line was implemented after this blog post
+        // https://stackoverflow.com/questions/849211/shortest-distance-between-a-point-and-a-line-segment
+
+        let a = x - this.from.x;
+        let b = y - this.from.y;
+        let c = this.to.x - this.from.x;
+        let d = this.to.y - this.from.y;
+
+        let dot = a * c + b * d;
+        let length_sqr = c * c + d * d;
+        let parameter = -1;
+        if (length_sqr != 0)
+            parameter = dot / length_sqr;
+
+        let xx, yy;
+
+        if (parameter < 0) {
+            xx = this.from.x;
+            yy = this.from.y;
+        } else if (parameter > 1) {
+            xx = this.to.x;
+            yy = this.to.y;
+        } else {
+            xx = this.from.x + parameter * c;
+            yy = this.from.y + parameter * d;
+        }
+
+        let dx = x - xx;
+        let dy = y - yy;
+
+        let distance = Math.sqrt(dx * dx + dy * dy);
+
+        return distance < this.selectionAccuracy;
     }
 
 }
@@ -81,10 +128,29 @@ class Circle extends AbstractShape implements Shape {
     constructor(readonly center: Point2D, readonly radius: number){
         super();
     }
-    draw(ctx: CanvasRenderingContext2D) {
+
+    draw(ctx: CanvasRenderingContext2D, isSelected: boolean, colorForSelection: string,) {
         ctx.beginPath();
         ctx.arc(this.center.x,this.center.y,this.radius,0,2*Math.PI);
+        ctx.fillStyle = this.fillColor;
+        ctx.fill();
         ctx.stroke();
+
+
+        if (isSelected) {
+            ctx.fillStyle = colorForSelection;
+            ctx.fillRect(this.center.x - (this.radius + 3), this.center.y, 6, 6);
+            ctx.fillRect(this.center.x, this.center.y - (this.radius + 3), 6, 6);
+            ctx.fillRect(this.center.x + (this.radius - 3), this.center.y, 6, 6);
+            ctx.fillRect(this.center.x, this.center.y + (this.radius - 3), 6, 6);
+        }
+    }
+
+    isSelected(x: number, y: number): boolean {
+        //true if distance between click and center of circle < radius
+
+        let distanceSqr = Math.pow(this.center.x - x, 2) + Math.pow(this.center.y - y, 2);
+        return distanceSqr < Math.pow(this.radius, 2);
     }
 }
 export class CircleFactory extends AbstractFactory<Circle> implements ShapeFactory {
@@ -109,11 +175,51 @@ class Rectangle extends AbstractShape implements Shape {
         super();
     }
 
-    draw(ctx: CanvasRenderingContext2D) {
+    draw(ctx: CanvasRenderingContext2D, isSelected: boolean, colorForSelection: string) {
         ctx.beginPath();
         ctx.strokeRect(this.from.x, this.from.y,
             this.to.x - this.from.x, this.to.y - this.from.y);
-        ctx.stroke();
+        ctx.stroke()
+
+        if (isSelected) {
+            ctx.fillStyle = colorForSelection;
+            ctx.fillRect(this.from.x - 3, this.from.y - 3, 6, 6);
+            ctx.fillRect(this.to.x - 3, this.from.y - 3, 6, 6);
+            ctx.fillRect(this.to.x - 3, this.to.y - 3, 6, 6);
+            ctx.fillRect(this.from.x - 3, this.to.y - 3, 6, 6);
+        }
+    }
+
+    isSelected(x: number, y: number): boolean {
+        // when drawn from left to right
+        if (this.from.x < this.to.x) {
+            if (x < this.from.x || x > this.to.x) {
+                return false;
+            }
+            //when drawn from top to bottom
+            if (this.from.y < this.to.y) {
+                return !(y < this.from.y || y > this.to.y);
+            }
+            //when drawn from bottom to top
+            else {
+                return !(y > this.from.y || y < this.to.y);
+            }
+        }
+        // when drawn from right to left
+        else {
+            if (x > this.from.x || x < this.to.x) {
+                return false;
+            }
+            //when drawn from top to bottom
+            if (this.from.y < this.to.y) {
+                return !(y < this.from.y || y > this.to.y);
+            }
+            //when drawn from bottom to top
+            else {
+                return !(y > this.from.y || y < this.to.y);
+            }
+        }
+
     }
 }
 export class RectangleFactory extends AbstractFactory<Rectangle> implements ShapeFactory{
@@ -131,14 +237,42 @@ class Triangle extends AbstractShape implements Shape {
     constructor(readonly p1: Point2D, readonly p2: Point2D, readonly p3: Point2D) {
         super();
     }
-    draw(ctx: CanvasRenderingContext2D) {
+    draw(ctx: CanvasRenderingContext2D, isSelected: boolean, colorForSelection: string) {
         ctx.beginPath();
         ctx.moveTo(this.p1.x, this.p1.y);
         ctx.lineTo(this.p2.x, this.p2.y);
         ctx.lineTo(this.p3.x, this.p3.y);
         ctx.lineTo(this.p1.x, this.p1.y);
         ctx.stroke();
+
+        if (isSelected) {
+            ctx.fillStyle = colorForSelection;
+            ctx.fillRect(this.p1.x - 3, this.p1.y - 3, 6, 6);
+            ctx.fillRect(this.p2.x - 3, this.p2.y - 3, 6, 6);
+            ctx.fillRect(this.p3.x - 3, this.p3.y - 3, 6, 6);
+        }
     }
+
+    isSelected(x: number, y: number): boolean {
+        //taken from stackoverflow https://stackoverflow.com/questions/2049582/how-to-determine-if-a-point-is-in-a-2d-triangle
+
+        let v1, v2, v3;
+        let negative, positive;
+
+        v1 = check(x, y, this.p1, this.p2);
+        v2 = check(x, y, this.p2, this.p3);
+        v3 = check(x, y, this.p3, this.p1);
+
+        negative = (v1 < 0) || (v2 < 0) || (v3 < 0);
+        positive = (v1 > 0) || (v2 > 0) || (v3 > 0);
+
+        return !(negative && positive);
+
+        function check(x, y, p2, p3) {
+            return (x - p3.x) * (p2.y - p3.y) - (p2.x - p3.x) * (y - p3.y);
+        }
+    }
+
 }
 export class TriangleFactory implements ShapeFactory{
     public label: string = "Dreieck";
