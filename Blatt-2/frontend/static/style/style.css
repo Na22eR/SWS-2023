@@ -63,3 +63,7 @@
     width: fit-content;
     margin-right: 20px;
 }
+
+#selection-div{
+    padding-bottom: 10px;
+}
