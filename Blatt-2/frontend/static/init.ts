@@ -1,9 +1,9 @@
-import {ShapeFactory, ShapeManager} from "./types";
-import {CircleFactory, LineFactory, RectangleFactory, TriangleFactory} from "./Shapes";
-import {ToolArea} from "./ToolArea";
-import {Canvas} from "./Canvas";
+import {ShapeFactory, ShapeManager} from "./canvas/types.js";
+import {CircleFactory, LineFactory, RectangleFactory, SelectionFactory, TriangleFactory} from "./canvas/Shapes.js";
+import {ToolArea} from "./ToolArea.js";
+import {Canvas} from "./canvas/Canvas.js";
 
-function init() {
+export function initCanvas(): void{
     const canvasDomElm = document.getElementById("drawArea") as HTMLCanvasElement;
     const menu = document.getElementsByClassName("tools");
     // Problem here: Factories needs a way to create new Shapes, so they
@@ -14,24 +14,37 @@ function init() {
     // Anyway, we do not want the two to have references on each other
     let canvas: Canvas;
     const sm: ShapeManager = {
-        addShape(s, rd) {
-            return canvas.addShape(s,rd);
+        addShape(s) {
+            return canvas.addShape(s);
         },
-        removeShape(s,rd) {
-            return canvas.removeShape(s,rd);
+        removeShape(s, bool) {
+            return canvas.removeShape(s, bool);
         },
-        removeShapeWithId(id, rd) {
-            return canvas.removeShapeWithId(id, rd);
-        }
+        iterateShapes(){
+            return canvas.iterateShapes();
+        },
+        selectShapes(){
+            return canvas.selectShapes();
+        },
+        selectShape() {
+            return canvas.selectShape();
+        },
+        isShapeOnClickedPoint(x: number, y: number) {
+            return canvas.isShapeOnClickedPoint(x,y);
+        },
+
     };
     const shapesSelector: ShapeFactory[] = [
         new LineFactory(sm),
         new CircleFactory(sm),
         new RectangleFactory(sm),
-        new TriangleFactory(sm)
+        new TriangleFactory(sm),
+        new SelectionFactory(sm),
     ];
+
     const toolArea = new ToolArea(shapesSelector, menu[0]);
     canvas = new Canvas(canvasDomElm, toolArea);
-    canvas.draw();
+    canvas.drawCanvas();
 }
-init();
+
+initCanvas();

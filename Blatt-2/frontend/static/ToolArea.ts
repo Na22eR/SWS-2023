@@ -1,4 +1,4 @@
-import {ShapeFactory} from "./types";
+import {ShapeFactory} from "./canvas/types";
 
 export class ToolArea {
     private selectedShape: ShapeFactory = undefined;

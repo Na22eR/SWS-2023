@@ -19,7 +19,47 @@
     color: white;
 }
 
+.ulMenu {
+    list-style-type: none;
+    background-color: #333;
+    border: 1px solid #999;
+    border-radius: 5px;
+    padding: 10px 0;
+    color: white;
+    width: 200px;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.5);
+    position: fixed;
+    z-index: 1000;
+    display: none;
+}
+
+.ulMenu .menuItem {
+    margin: 5px;
+    padding: 10px 20px;
+    cursor: pointer;
+    color: #fff;
+}
+
+.helperDiv {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    display: none;
+}
+
 #drawArea {
+    position: absolute;
     border:1px solid #000000;
     background-color: lightgrey;
+}
+
+#selection-color {
+    background: #00FF73;
+    color: #00FF73;
+    width: fit-content;
+    margin-right: 20px;
 }

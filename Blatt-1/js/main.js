@@ -37,7 +37,7 @@ function addRClickListenerCanvas(){
         const menu = setupContextMenu(MenuApi);
         menu.show(e.clientX,e.clientY)
 
-        console.log("Event: Canvas right clicked");
+        console.log("Event: canvas right clicked");
     } );
 
 }
@@ -72,7 +72,7 @@ function addClickListenerCanvas(){
         listItem.textContent = "X-Pos: " + x + ", Y-Pos: " + y
         list.appendChild(listItem)
 
-        console.log("Event: Canvas left clicked");
+        console.log("Event: canvas left clicked");
     } );
 
 }
